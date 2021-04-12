@@ -46,7 +46,19 @@ def Welcome():
 @app.route("/api/v1.0/precipitation")
 def precipitation():
     prcp_data = session.query(Measurement.date, Measurement.prcp).filter(Measurement.date > oneYearFromDate).order_by(Measurement.date).all()
-    return jsonify(prcp_data)
+
+    precipitation_dic=[]  
+    for date, precipitation in prcp_data:
+        prcp_dic={}
+        prcp_dic["date"]=date
+        prcp_dic["precipitation"]= precipitation
+        precipitation_dic.append(prcp_dic)
+    return jsonify(precipitation_dic)
+
+@app.route("/api/v1.0/stations")
+def stations():
+    
+
 
 if __name__ == "__main__":
     app.run(debug=True)
