@@ -39,6 +39,8 @@ def Welcome():
         f"/api/v1.0/precipitation <br/>"
         f"/api/v1.0/stations <br/>"
         f"/api/v1.0/tobs <br/>"
+        f"/api/v1.0/<start><br/>"
+        f"/api/v1.0/<start>/<end>"
 
     )
 
@@ -63,6 +65,42 @@ def stations():
     return jsonify(stations)
 
 
+@app.route("/api/v1.0/tobs")
+def tobs():
+#uery the dates and temperature observations of the most active station for the last year of data.
+    mostAcvtive_tobs_data = session.query(Measurement.date, Measurement.tobs,Measurement.station,func.count(Measurement.station)).group_by(Measurement.station).order_by(func.count(Measurement.station).desc()).filter(Measurement.date > oneYearFromDate).first()
+    x=mostAcvtive_tobs_data[2]
+    avtive=session.query(Measurement.date, Measurement.tobs).filter(Measurement.station==x).filter(Measurement.date > oneYearFromDate).all()
+    avtive
+#Return a JSON list of temperature observations (TOBS) for the previous year.
+    tobs=list(np.ravel(avtive))
+    return jsonify(tobs)
+
+#Return a JSON list of the minimum temperature, the average temperature, and the max temperature for a given start or start-end range.
+@app.route("/api/v1.0/<start>")
+def start(start):
+
+#When given the start only, calculate TMIN, TAVG, and TMAX for all dates greater than and equal to the start date.
+    start_date= dt.datetime.strptime(start, '%Y-%m-%d')
+    start_temp=session.query(func.min(Measurement.tobs),func.max(Measurement.tobs),func.avg(Measurement.tobs)).filter(Measurement.date>=start_date).all()
+    temp_start_list=list(np.ravel(start_temp))
+    return jsonify(temp_start_list)
+
+#Return a JSON list of the minimum temperature, the average temperature, and the max temperature for a given start or start-end range.
+@app.route("/api/v1.0/<start>/<end>")
+def start2(start,end):
+
+
+    start_date= dt.datetime.strptime(start, '%Y-%m-%d')
+    end_date=dt.datetime.strptime(end, '%Y-%m-%d')
+    start_end_temp=session.query(func.min(Measurement.tobs),func.max(Measurement.tobs),func.avg(Measurement.tobs)).filter(Measurement.date>=start_date).filter(Measurement.date<=end_date).all()
+    temp_start_end_list=list(np.ravel(start_end_temp))
+    return jsonify(temp_start_end_list)
+
+
+
+session.close()
+#
 if __name__ == "__main__":
     app.run(debug=True)
     
