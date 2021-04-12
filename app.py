@@ -71,8 +71,7 @@ def tobs():
     mostAcvtive_tobs_data = session.query(Measurement.date, Measurement.tobs,Measurement.station,func.count(Measurement.station)).group_by(Measurement.station).order_by(func.count(Measurement.station).desc()).filter(Measurement.date > oneYearFromDate).first()
     x=mostAcvtive_tobs_data[2]
     avtive=session.query(Measurement.date, Measurement.tobs).filter(Measurement.station==x).filter(Measurement.date > oneYearFromDate).all()
-    avtive
-#Return a JSON list of temperature observations (TOBS) for the previous year.
+    #Return a JSON list of temperature observations (TOBS) for the previous year.
     tobs=list(np.ravel(avtive))
     return jsonify(tobs)
 
