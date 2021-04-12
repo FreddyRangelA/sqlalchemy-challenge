@@ -7,7 +7,7 @@ from sqlalchemy import create_engine, func
 from datetime import datetime
 from flask import Flask, jsonify
 import datetime as dt
-
+import pandas as pd
 #################################################
 # Database Setup
 #################################################
@@ -55,9 +55,12 @@ def precipitation():
         precipitation_dic.append(prcp_dic)
     return jsonify(precipitation_dic)
 
+#Return a JSON list of stations from the dataset.
 @app.route("/api/v1.0/stations")
 def stations():
-    
+    stations_query = session.query(Station.station).all()
+    stations =list(np.ravel(stations_query))
+    return jsonify(stations)
 
 
 if __name__ == "__main__":
